@@ -2,7 +2,7 @@
 <style>
 
 html {
-  background: url(img/peakpx.jpg) no-repeat center center fixed;
+  background: url(img/background.jpg) no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
@@ -31,18 +31,18 @@ html {
 
 <?php
 
-$url = 'https://api.mcsrvstat.us/bedrock/2/minecraft.sokolik.info';
+$url = 'https://api.mcsrvstat.us/bedrock/2/" . $_ENV["MINECRAFT_SERVER"];
 $response = file_get_contents($url); // put the contents of the file into a variable
 $status = json_decode($response);
 
 if ($status->online) {
-  echo "IP: " . $status->ip . "<br>\n";
-  echo "Port: " . $status->port . "<br>\n";
-  echo "Version: " . $status->version . "<br>\n";
-  echo "Map: " . $status->map . "<br>\n";
-  echo "Game Mode: " . $status->gamemode . "<br>\n";
+  echo "IP            : " . $status->ip . "<br>\n";
+  echo "Port          : " . $status->port . "<br>\n";
+  echo "Version       : " . $status->version . "<br>\n";
+  echo "Map           : " . $status->map . "<br>\n";
+  echo "Game Mode     : " . $status->gamemode . "<br>\n";
   echo "Players Online: " . $status->players->online . "<br>\n";
-  echo "Max Players: " . $status->players->max . "<br>\n";
+  echo "Max Players   : " . $status->players->max . "<br>\n";
 } else {
   echo "Server is currently offline!\n";
 }
