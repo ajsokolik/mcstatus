@@ -5,6 +5,6 @@ RUN     wget https://raw.githubusercontent.com/ajsokolik/mcstatus/main/docker/fi
 RUN     wget https://raw.githubusercontent.com/ajsokolik/mcstatus/main/docker/files/default.conf -P /etc/nginx/conf.d
 RUN     wget https://raw.githubusercontent.com/ajsokolik/mcstatus/main/index.php -P /var/www/html
 RUN     wget https://raw.githubusercontent.com/ajsokolik/mcstatus/main/img/background.jpg -P /var/www/html/img
-# RUN     mkdir -p /run/php-fpm/
+RUN     mkdir -p /run/php-fpm/
 EXPOSE  80
 CMD     ["sh","-c","/usr/sbin/php-fpm -F -R && /usr/sbin/nginx -g 'daemon off;'"]
