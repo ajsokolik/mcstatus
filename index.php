@@ -31,7 +31,7 @@ html {
 
 <?php
 
-$url = "https://api.mcsrvstat.us/bedrock/2/" . $_SERVER["MINECRAFT_SERVER"];
+$url = "https://api.mcsrvstat.us/bedrock/2/" . $_ENV["MINECRAFT_SERVER"];
 $response = file_get_contents($url); // put the contents of the file into a variable
 $status = json_decode($response);
 
