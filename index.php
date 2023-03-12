@@ -31,9 +31,8 @@ html {
 
 <?php
 
-$url = "https://api.mcsrvstat.us/bedrock/2/" . $_ENV["MINECRAFT_SERVER"];
-$response = file_get_contents($url); // put the contents of the file into a variable
-$status = json_decode($response);
+$url = "https://api.mcstatus.io/v2/status/bedrock/" . $_ENV["MINECRAFT_SERVER"];
+$status = json_decode(file_get_contents($url));
 
 if ($status->online) {
   echo "IP            : " . $status->ip . "<br>\n";
