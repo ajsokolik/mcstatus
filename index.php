@@ -32,18 +32,26 @@ html {
 <?php
 
 $url = "https://api.mcstatus.io/v2/status/bedrock/" . $_ENV["MINECRAFT_SERVER"];
+if (ip2long($_ENV["MINECRAFT_SERVER"])) {
+	$ipAddress = $_ENV["MINECRAFT_SERVER"];
+} else {
+	$ipAddress = gethostbyname($_ENV["MINECRAFT_SERVER"]);
+}
 $status = json_decode(file_get_contents($url));
 
 if ($status->online) {
-  echo "IP            : " . $status->ip . "<br>\n";
+  echo "MOTD          : " . $status->motd->html . "<br>\n";
+  echo "IP            : " . $ipAddress . "<br>\n";
   echo "Port          : " . $status->port . "<br>\n";
-  echo "Version       : " . $status->version . "<br>\n";
+  echo "Version       : " . $status->version->name . "<br>\n";
+  echo "Protocol      : " . $status->version->protocol . "<br>\n";
+  echo "Server ID     : " . $status->server_id . "<br>\n";
   echo "Map           : " . $status->map . "<br>\n";
   echo "Game Mode     : " . $status->gamemode . "<br>\n";
   echo "Players Online: " . $status->players->online . "<br>\n";
   echo "Max Players   : " . $status->players->max . "<br>\n";
 } else {
-  echo "Server is currently offline!\n";
+  echo "Server " . $_ENV["MINECRAFT_SERVER"] . "at " . $ipAddress . " is currently offline!\n";
 }
 
 ?>
