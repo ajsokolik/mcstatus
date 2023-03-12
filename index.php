@@ -32,12 +32,15 @@ html {
 <?php
 
 $url = "https://api.mcstatus.io/v2/status/bedrock/" . $_ENV["MINECRAFT_SERVER"];
+$results = file_get_contents($url);
+$status = json_decode($results);
+
 if (ip2long($_ENV["MINECRAFT_SERVER"])) {
 	$ipAddress = $_ENV["MINECRAFT_SERVER"];
 } else {
 	$ipAddress = gethostbyname($_ENV["MINECRAFT_SERVER"]);
 }
-$status = json_decode(file_get_contents($url));
+
 
 if ($status->online) {
   echo "MOTD          : " . $status->motd->html . "<br>\n";
