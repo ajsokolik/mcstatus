@@ -49,7 +49,6 @@ if ($status->online) {
   echo "Version       : " . $status->version->name . "<br>\n";
   echo "Protocol      : " . $status->version->protocol . "<br>\n";
   echo "Server ID     : " . $status->server_id . "<br>\n";
-  echo "Map           : " . $status->map . "<br>\n";
   echo "Game Mode     : " . $status->gamemode . "<br>\n";
   echo "Players Online: " . $status->players->online . "<br>\n";
   echo "Max Players   : " . $status->players->max . "<br>\n";
