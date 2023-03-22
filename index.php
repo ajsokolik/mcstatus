@@ -53,7 +53,7 @@ if ($status->online) {
   echo "Players Online: " . $status->players->online . "<br>\n";
   echo "Max Players   : " . $status->players->max . "<br>\n";
 } else {
-  echo "Server " . $_ENV["MINECRAFT_SERVER"] . "at " . $ipAddress . " is currently offline!\n";
+  echo "Server " . $_ENV["MINECRAFT_SERVER"] . " at " . $ipAddress . " is currently offline!\n";
 }
 
 ?>
