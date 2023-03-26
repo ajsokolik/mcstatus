@@ -24,6 +24,7 @@ html {
 <html>
   <head>
     <title>Minecraft Server Status</title>
+    <link rel="icon" type="image/x-icon" href="/img/favicon.ico">
   <body>
     <div class="text">
       <h3>Current Minecraft Server Status</h3>
