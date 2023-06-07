@@ -16,6 +16,5 @@ jobs:
     - uses: actions/checkout@v3
     - name: Build the Docker image
       run: echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin docker.io;
-        docker build . --tag ${{ secrets.DOCKER_HUB_REPOSITORY }}:$(date +%s);
-        docker tag ${{ secrets.DOCKER_HUB_REPOSITORY }}:$(date +%s) ${{ secrets.DOCKER_HUB_REPOSITORY }}:latest;
-        docker push ${{ secrets.DOCKER_HUB_REPOSITORY }}:latest
+        docker build . -t ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:$(date +%s) -t ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:latest;
+        docker push -a
