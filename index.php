@@ -44,7 +44,7 @@ if (ip2long($_ENV["MINECRAFT_SERVER"])) {
 
 
   if ($status->online) {
-  # echo "MOTD          : " . $status->motd->html->0 . "<br>\n";
+  echo "MOTD          : " . $status->motd->html[0] . "<br>\n";
   echo "IP            : " . $ipAddress . "<br>\n";
   echo "Port          : " . $status->port . "<br>\n";
   echo "Version       : " . $status->version . "<br>\n";
