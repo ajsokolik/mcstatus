@@ -32,7 +32,7 @@ html {
 
 <?php
 
-$url = "https://api.mcstatus.io/v2/status/bedrock/" . $_ENV["MINECRAFT_SERVER"];
+$url = "https://api.mcsrvstat.us/bedrock/2/" . $_ENV["MINECRAFT_SERVER"];
 $results = file_get_contents($url);
 $status = json_decode($results);
 
@@ -47,8 +47,8 @@ if ($status->online) {
   echo "MOTD          : " . $status->motd->html . "<br>\n";
   echo "IP            : " . $ipAddress . "<br>\n";
   echo "Port          : " . $status->port . "<br>\n";
-  echo "Version       : " . $status->version->name . "<br>\n";
-  echo "Protocol      : " . $status->version->protocol . "<br>\n";
+  echo "Version       : " . $status->version . "<br>\n";
+  echo "Protocol      : " . $status->protocol . "<br>\n";
   echo "Server ID     : " . $status->server_id . "<br>\n";
   echo "Game Mode     : " . $status->gamemode . "<br>\n";
   echo "Players Online: " . $status->players->online . "<br>\n";
