@@ -21,16 +21,11 @@ html {
 
 </style>
 
-<html>
-  <head>
-    <title>Minecraft Server Status</title>
-    <link rel="icon" type="image/x-icon" href="/img/favicon.ico">
-  <body>
-    <div class="text">
-      <h3>Current Minecraft Server Status</h3>
-      <p>
-
 <?php
+
+echo "<html><head><title>" . $_ENV["MINECRAFT_SERVER"] . " Status</title>";
+echo '<link rel="icon" type="image/x-icon" href="/img/favicon.ico">';
+echo '<body><div class="text"><h3>' . $_ENV["MINECRAFT_SERVER"] . ' Status</h3><p>';
 
 $url = "https://api.mcsrvstat.us/bedrock/2/" . $_ENV["MINECRAFT_SERVER"];
 $results = file_get_contents($url);
@@ -58,12 +53,8 @@ if (ip2long($_ENV["MINECRAFT_SERVER"])) {
   echo "Players Online: " . $status->players->online . "<br>\n";
   echo "Max Players   : " . $status->players->max . "<br>\n";
 } else {
-  echo "Server " . $_ENV["MINECRAFT_SERVER"] . " at " . $ipAddress . " is currently offline!\n";
+  echo "Server " . $hostname . " at " . $ipAddress . " is currently offline!\n";
 }
 
+echo "</p></div></body></html>";
 ?>
-
-      </p>
-    </div>
-  </body>
-</html>
