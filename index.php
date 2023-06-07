@@ -49,7 +49,7 @@ if (ip2long($_ENV["MINECRAFT_SERVER"])) {
   echo "Port          : " . $status->port . "<br>\n";
   echo "Version       : " . $status->version . "<br>\n";
   echo "Protocol      : " . $status->protocol . "<br>\n";
-  echo "Server ID     : " . $status->server_id . "<br>\n";
+  echo "Server ID     : " . $status->serverid . "<br>\n";
   echo "Game Mode     : " . $status->gamemode . "<br>\n";
   echo "Map           : " . $status->map . "<br>\n";
   echo "Players Online: " . $status->players->online . "<br>\n";
