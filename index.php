@@ -23,9 +23,9 @@ html {
 
 <?php
 
-echo "<html><head><title>" . $_ENV["MINECRAFT_SERVER"] . " Status</title>";
+echo "<html><head><title>Status for " . $_ENV["MINECRAFT_SERVER"] . "</title>";
 echo '<link rel="icon" type="image/x-icon" href="/img/favicon.ico">';
-echo '<body><div class="text"><h3>' . $_ENV["MINECRAFT_SERVER"] . ' Status</h3><p>';
+echo '<body><div class="text"><h3>Status for ' . $_ENV["MINECRAFT_SERVER"] . '</h3><p>';
 
 $url = "https://api.mcsrvstat.us/bedrock/2/" . $_ENV["MINECRAFT_SERVER"];
 $results = file_get_contents($url);
@@ -38,7 +38,6 @@ if (ip2long($_ENV["MINECRAFT_SERVER"])) {
 	$ipAddress = gethostbyname($_ENV["MINECRAFT_SERVER"]);
   $hostname = $_ENV["MINECRAFT_SERVER"];
 }
-
 
   if ($status->online) {
   echo "MOTD          : " . $status->motd->html[0] . "<br>\n";
