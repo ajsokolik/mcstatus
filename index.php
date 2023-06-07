@@ -38,14 +38,17 @@ $status = json_decode($results);
 
 if (ip2long($_ENV["MINECRAFT_SERVER"])) {
 	$ipAddress = $_ENV["MINECRAFT_SERVER"];
+  $hostname = gethostbyaddr($_ENV["MINECRAFT_SERVER"]);
 } else {
 	$ipAddress = gethostbyname($_ENV["MINECRAFT_SERVER"]);
+  $hostname = $_ENV["MINECRAFT_SERVER"];
 }
 
 
   if ($status->online) {
   echo "MOTD          : " . $status->motd->html[0] . "<br>\n";
   echo "IP            : " . $ipAddress . "<br>\n";
+  echo "Hostname      : " . $hostname . "<br>\n";
   echo "Port          : " . $status->port . "<br>\n";
   echo "Version       : " . $status->version . "<br>\n";
   echo "Protocol      : " . $status->protocol . "<br>\n";
