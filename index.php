@@ -58,10 +58,6 @@ function show_info($server) {
 
 }
 
-if ($_ENV["MINECRAFT_SERVER"]) {
-  show_info($_ENV["MINECRAFT_SERVER"]);
-}
-
 $maxServers = 10;
 
 for ($i = 1; $i <= $maxServers; $i++) {
