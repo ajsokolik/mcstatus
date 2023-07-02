@@ -56,7 +56,7 @@ function show_info($server) {
 
 }
 
-echo "<html><head><title>Status for " . $server . "</title>";
+echo "<html><head><title>Minecraft Server Status</title>";
 echo '<link rel="icon" type="image/x-icon" href="/img/favicon.ico">';
 echo '<div class="text">';
 
