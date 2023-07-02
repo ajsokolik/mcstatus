@@ -65,7 +65,9 @@ if ($_ENV["MINECRAFT_SERVER"]) {
 $maxServer = 10;
 
 for ($i = 1; $i <= $maxServers; $i++) {
-  show_info($_ENV["MINECRAFT_SERVER" . $i]);
+  if ($_ENV["MINECRAFT_SERVER" . $i]) {
+    show_info($_ENV["MINECRAFT_SERVER" . $i]);
+  }
 }
 
 echo "</p></div></body></html>";
