@@ -10,7 +10,7 @@ html {
 }
 /* Bottom right text */
 .text {
-  position: absolute;
+  position: relative;
   bottom: 20px;
   right: 20px;
   background-color: black;
