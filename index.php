@@ -24,18 +24,25 @@ html {
 <?php
 
 function show_info($server) {
-  echo '<body><h3>Status for ' . $server . '</h3><p>';
+  echo '<h3>Status for ' . $server . '</h3><p>';
 
   $url = "https://api.mcsrvstat.us/bedrock/2/" . $server;
   $results = file_get_contents($url);
   $status = json_decode($results);
-
-  if (ip2long($server)) {
-	  $ipAddress = $server;
-    $hostname = gethostbyaddr($server);
+  if (strpos($server, ':') !== false) {
+    $host = substr($server, 0, strpos($server, ':'));
   } else {
-	  $ipAddress = gethostbyname($server);
-    $hostname = $server;
+    $host = $server;
+  }
+
+
+
+  if (ip2long($host)) {
+	  $ipAddress = $server;
+    $hostname = gethostbyaddr($host);
+  } else {
+	  $ipAddress = gethostbyname($host);
+    $hostname = $host;
   }
 
   if ($status->online) {
@@ -58,7 +65,7 @@ function show_info($server) {
 
 echo "<html><head><title>Minecraft Server Status</title>";
 echo '<link rel="icon" type="image/x-icon" href="/img/favicon.ico">';
-echo '<div class="text">';
+echo '<body><div class="text">';
 
 $maxServers = 10;
 
