@@ -24,9 +24,7 @@ html {
 <?php
 
 function show_info($server) {
-  echo "<html><head><title>Status for " . $server . "</title>";
-  echo '<link rel="icon" type="image/x-icon" href="/img/favicon.ico">';
-  echo '<body><div class="text"><h3>Status for ' . $server . '</h3><p>';
+  echo '<body><h3>Status for ' . $server . '</h3><p>';
 
   $url = "https://api.mcsrvstat.us/bedrock/2/" . $server;
   $results = file_get_contents($url);
@@ -51,12 +49,16 @@ function show_info($server) {
     echo "Game Mode     : " . $status->gamemode . "<br>\n";
     echo "Map           : " . $status->map . "<br>\n";
     echo "Players Online: " . $status->players->online . "<br>\n";
-    echo "Max Players   : " . $status->players->max . "<br>\n";
+    echo "Max Players   : " . $status->players->max . "<br></p>";
   } else {
-    echo "Server " . $hostname . " at " . $ipAddress . " is currently offline!\n";
+    echo "Server " . $hostname . " at " . $ipAddress . " is currently offline!</p>";
   }
 
 }
+
+echo "<html><head><title>Status for " . $server . "</title>";
+echo '<link rel="icon" type="image/x-icon" href="/img/favicon.ico">';
+echo '<div class="text">';
 
 $maxServers = 10;
 
@@ -66,5 +68,5 @@ for ($i = 1; $i <= $maxServers; $i++) {
   }
 }
 
-echo "</p></div></body></html>";
+echo "</div></body></html>";
 ?>
