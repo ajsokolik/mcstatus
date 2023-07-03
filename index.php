@@ -120,7 +120,7 @@ echo '<body><div class="container">';
 
 $maxServers = 10;
 
-echo '<div class="lower-right">';
+echo '<div class="lower-left">';
 
 for ($i = 1; $i <= $maxServers; $i++) {
   if (isset($_ENV["MINECRAFT_SERVER" . $i])) {
@@ -128,11 +128,11 @@ for ($i = 1; $i <= $maxServers; $i++) {
   }
 }
 
-echo '</div><div class="lower-left">';
+echo '</div><div class="lower-right">';
 
 for ($i = 1; $i <= $maxServers; $i++) {
   if (isset($_ENV["JAVA_MINECRAFT_SERVER" . $i])) {
-    show_info($_ENV["JAVA_MINECRAFT_SERVER" . $i]);
+    show_java_info($_ENV["JAVA_MINECRAFT_SERVER" . $i]);
   }
 }
 
