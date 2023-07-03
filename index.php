@@ -20,7 +20,7 @@ html {
       height: 150px;
       background-color: black;
       color: white;
-      padding: 10px;
+      padding: 20px;
     }
     
     .lower-right {
