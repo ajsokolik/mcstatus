@@ -40,7 +40,7 @@ html {
 <?php
 
 function show_java_info($server) {
-  echo '<h3>Status for Java Server ' . $server . '</h3><p>';
+  echo '<h3>Status for Java Server<br />' . $server . '</h3<hr><p>';
 
   $url = "https://api.mcstatus.io/v2/status/java/" . $server;
   $results = file_get_contents($url);
@@ -66,9 +66,6 @@ function show_java_info($server) {
     echo "Port          : " . $status->port . "<br>\n";
     echo "Version       : " . $status->version->name_html[0] . "<br>\n";
     echo "Protocol      : " . $status->version->protocol . "<br>\n";
-    echo "Server ID     : " . $status->serverid . "<br>\n";
-    echo "Game Mode     : " . $status->gamemode . "<br>\n";
-    echo "Map           : " . $status->map . "<br>\n";
     echo "Players Online: " . $status->players->online . "<br>\n";
     echo "Max Players   : " . $status->players->max . "<br></p>";
   } else {
@@ -78,7 +75,7 @@ function show_java_info($server) {
 
 
 function show_info($server) {
-  echo '<h3>Status for Bedrock Server ' . $server . '</h3><p>';
+  echo '<h3>Status for Bedrock Server<br />' . $server . '</h3><hr><p>';
 
   $url = "https://api.mcsrvstat.us/bedrock/2/" . $server;
   $results = file_get_contents($url);
