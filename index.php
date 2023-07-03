@@ -8,6 +8,30 @@ html {
   -o-background-size: cover;
   background-size: cover;
 }
+
+.container {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    
+    .box {
+      width: 200px;
+      height: 150px;
+      background-color: black;
+      color: white;
+      padding: 10px;
+    }
+    
+    .lower-right {
+      text-align: right;
+    }
+    
+    .lower-left {
+      text-align: left;
+    }
+
+
 /* Bottom right text */
 .text {
   position: absolute;
@@ -110,9 +134,11 @@ function show_info($server) {
 
 echo "<html><head><title>Minecraft Server Status</title>";
 echo '<link rel="icon" type="image/x-icon" href="/img/favicon.ico">';
-echo '<body><div class="text">';
+echo '<body><div class="container">';
 
 $maxServers = 10;
+
+echo '<div class="lower-right">';
 
 for ($i = 1; $i <= $maxServers; $i++) {
   if (isset($_ENV["MINECRAFT_SERVER" . $i])) {
@@ -120,7 +146,7 @@ for ($i = 1; $i <= $maxServers; $i++) {
   }
 }
 
-echo '</div><div class="text1">';
+echo '</div><div class="lower-left">';
 
 for ($i = 1; $i <= $maxServers; $i++) {
   if (isset($_ENV["JAVA_MINECRAFT_SERVER" . $i])) {
@@ -128,5 +154,5 @@ for ($i = 1; $i <= $maxServers; $i++) {
   }
 }
 
-echo "</div></body></html>";
+echo "</div></div></body></html>";
 ?>
