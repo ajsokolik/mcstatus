@@ -63,11 +63,11 @@ function show_java_info($server) {
   }
 
   if ($status->online) {
-    echo "MOTD          : " . $status->motd->html[0] . "<br>\n";
+    echo "MOTD          : " . $status->motd->html . "<br>\n";
     echo "IP            : " . $ipAddress . "<br>\n";
     echo "Hostname      : " . $hostname . "<br>\n";
     echo "Port          : " . $status->port . "<br>\n";
-    echo "Version       : " . $status->version->name_html[0] . "<br>\n";
+    echo "Version       : " . $status->version->name_html . "<br>\n";
     echo "Protocol      : " . $status->version->protocol . "<br>\n";
     echo "Players Online: " . $status->players->online . "<br>\n";
     echo "Max Players   : " . $status->players->max . "<br></p>";
