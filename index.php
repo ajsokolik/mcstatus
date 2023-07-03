@@ -13,11 +13,12 @@ html {
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
+      padding: 20px;
     }
     
     .box {
       width: 200px;
-      height: 150px;
+      height: 100px;
       background-color: black;
       color: white;
       padding: 20px;
@@ -27,12 +28,14 @@ html {
       text-align: left;
       background-color: black;
       color: white;
+      padding: 20px;
     }
     
     .lower-left {
       text-align: right;
       background-color: black;
       color: white;
+      padding: 20px;
     }
 
 </style>
