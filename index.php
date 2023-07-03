@@ -24,7 +24,7 @@ html {
     }
     
     .lower-right {
-      text-align: right;
+      text-align: left;
       background-color: black;
       color: white;
     }
@@ -40,7 +40,7 @@ html {
 <?php
 
 function show_java_info($server) {
-  echo '<h3>Status for Java' . $server . '</h3><p>';
+  echo '<h3>Status for Java Server ' . $server . '</h3><p>';
 
   $url = "https://api.mcsrvstat.us/java/" . $server;
   $results = file_get_contents($url);
@@ -78,7 +78,7 @@ function show_java_info($server) {
 
 
 function show_info($server) {
-  echo '<h3>Status for Bedrock' . $server . '</h3><p>';
+  echo '<h3>Status for Bedrock Server ' . $server . '</h3><p>';
 
   $url = "https://api.mcsrvstat.us/bedrock/2/" . $server;
   $results = file_get_contents($url);
