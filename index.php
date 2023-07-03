@@ -24,7 +24,7 @@ html {
     }
     
     .lower-right {
-      text-align: left;
+      text-align: right;
       background-color: black;
       color: white;
     }
