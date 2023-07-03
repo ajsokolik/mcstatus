@@ -25,33 +25,15 @@ html {
     
     .lower-right {
       text-align: right;
+      background-color: black;
+      color: white;
     }
     
     .lower-left {
       text-align: left;
+      background-color: black;
+      color: white;
     }
-
-
-/* Bottom right text */
-.text {
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  background-color: black;
-  color: white;
-  padding-left: 20px;
-  padding-right: 20px;
-}
-.text1 {
-  background-color: black;
-  color: white;
-  margin-right: 5.5px;
-  margin-left: 5.5px;
-  margin-bottom: 5.5px;
-  margin-top: 5.5px;
-  display: table-cell;
-  vertical-align: bottom;
-}
 
 </style>
 
