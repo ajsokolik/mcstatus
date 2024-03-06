@@ -106,7 +106,6 @@ echo '<hr><h3>Status for Bedrock Server<br />' . $server . '</h3><hr><p>';
     echo "Protocol      : " . $status->protocol . "<br>\n";
     echo "Server ID     : " . $status->serverid . "<br>\n";
     echo "Game Mode     : " . $status->gamemode . "<br>\n";
-    echo "Map           : " . $status->map . "<br>\n";
     echo "Players Online: " . $status->players->online . "<br>\n";
     echo "Max Players   : " . $status->players->max . "<br></p>";
   } else {
