@@ -49,11 +49,18 @@
             font-weight: bold;
         }
         .dot {
-            height: 10px;
-            width: 10px;
+            height: 12px; /* Increased size for better visibility */
+            width: 12px; /* Increased size for better visibility */
             border-radius: 50%;
             display: inline-block;
             margin-right: 10px;
+            vertical-align: middle; /* Align the dot with the text */
+        }
+        .online-dot {
+            background-color: green;
+        }
+        .offline-dot {
+            background-color: red;
         }
         hr {
             border: none;
@@ -100,7 +107,7 @@
                 
                 // Check server status (online or offline)
                 if ($status->online) {
-                    echo '<span class="dot online"></span><span class="server-name">' . htmlspecialchars($server) . '</span></h3><hr><p>';
+                    echo '<span class="dot online-dot"></span><span class="server-name">' . htmlspecialchars($server) . '</span></h3><hr><p>';
                     // Display online details
                     $motdHtml = is_array($status->motd->html) ? implode('<br>', $status->motd->html) : $status->motd->html;
                     echo "MOTD: $motdHtml<br>";
@@ -117,7 +124,7 @@
                     echo "Players Online: " . htmlspecialchars($status->players->online) . "<br>";
                     echo "Max Players: " . htmlspecialchars($status->players->max) . "<br>";
                 } else {
-                    echo '<span class="dot offline"></span><span class="server-name">' . htmlspecialchars($hostname) . '</span></h3><hr><p>';
+                    echo '<span class="dot offline-dot"></span><span class="server-name">' . htmlspecialchars($hostname) . '</span></h3><hr><p>';
                     // Display offline details (hostname and IP only)
                     echo "IP: " . htmlspecialchars($ipAddress) . "<br>";
                     echo "Hostname: " . htmlspecialchars($hostname) . "<br>";
