@@ -57,6 +57,9 @@
             margin-right: 10px;
             vertical-align: middle; /* Align the dot with the text */
         }
+        .dot:hover {
+            opacity: 0.7; /* Slight hover effect */
+        }
         .online-dot {
             background-color: green;
         }
