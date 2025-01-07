@@ -28,7 +28,7 @@
             flex-wrap: wrap; 
         }
         .server-column {
-            width: 48%;
+            width: 40%;
             background-color: rgba(0, 0, 0, 0.6);
             padding: 20px;
             border-radius: 10px;
