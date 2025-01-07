@@ -1,4 +1,4 @@
-i<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -127,7 +127,7 @@ i<!DOCTYPE html>
                 $env_var = "MINECRAFT_SERVER$i";
                 if (getenv($env_var)) {
                     $bedrock_server = getenv($env_var);
-                    $bedrock_api_url = "https://api.mcsrvstat.us/bedrock/2/" . $bedrock_server;
+                    $bedrock_api_url = "https://api.mcstatus.io/v2/status/bedrock/" . $bedrock_server;
                     display_server_info("bedrock", $bedrock_server, $bedrock_api_url);
                 }
             }
