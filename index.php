@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+i<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -100,8 +100,8 @@
                         echo "IP            : " . htmlspecialchars($ipAddress) . "<br>\n";
                         echo "Hostname      : " . htmlspecialchars($hostname) . "<br>\n";
                         echo "Port          : " . htmlspecialchars($status->port) . "<br>\n";
-                        echo "Version       : " . htmlspecialchars($status->version) . "<br>\n";
-                        echo "Protocol      : " . htmlspecialchars($status->protocol) . "<br>\n";
+                        echo "Version       : " . htmlspecialchars($status->version->name) . "<br>\n";
+                        echo "Protocol      : " . htmlspecialchars($status->version->protocol) . "<br>\n";
                         echo "Game Mode     : " . htmlspecialchars($status->gamemode) . "<br>\n";
                         echo "Players Online: " . htmlspecialchars($status->players->online) . "<br>\n";
                         echo "Max Players   : " . htmlspecialchars($status->players->max) . "<br></p>";
@@ -127,8 +127,7 @@
                 $env_var = "MINECRAFT_SERVER$i";
                 if (getenv($env_var)) {
                     $bedrock_server = getenv($env_var);
-                    #$bedrock_api_url = "https://api.mcsrvstat.us/bedrock/2/" . $bedrock_server;
-                    $bedrock_api_url = "https://api.mcsrvstat.us/bedrock/2/minecraft.sokolik.info"; // Hardcoded for testing
+                    $bedrock_api_url = "https://api.mcsrvstat.us/bedrock/2/" . $bedrock_server;
                     display_server_info("bedrock", $bedrock_server, $bedrock_api_url);
                 }
             }
