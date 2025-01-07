@@ -47,6 +47,11 @@
     </style>
 </head>
 <body>
+<?php
+echo "<pre>";
+print_r(getenv("MINECRAFT_SERVER1"));
+echo "</pre>";
+?>
     <h1>Minecraft Server Status Dashboard</h1>
     <div class="server-container">
         <!-- Bedrock Servers Column -->
