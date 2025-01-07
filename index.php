@@ -39,6 +39,22 @@
         p {
             margin: 0 0 10px;
         }
+        .online {
+            color: green;
+        }
+        .offline {
+            color: red;
+        }
+        .server-name {
+            font-weight: bold;
+        }
+        .dot {
+            height: 10px;
+            width: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 10px;
+        }
         hr {
             border: none;
             border-top: 2px solid #555;
@@ -80,10 +96,12 @@
                 $ipAddress = ip2long($host) ? $server : gethostbyname($host);
                 $hostname = ip2long($host) ? gethostbyaddr($host) : $host;
                 
-                echo "<hr><h3>Status for " . ucfirst($type) . " Server<br />$server</h3><hr><p>";
-
+                echo "<hr><h3>Status for " . ucfirst($type) . " Server<br />";
+                
+                // Check server status (online or offline)
                 if ($status->online) {
-                    // Accessing properties using -> (object access)
+                    echo '<span class="dot online"></span><span class="server-name">' . htmlspecialchars($server) . '</span></h3><hr><p>';
+                    // Display online details
                     $motdHtml = is_array($status->motd->html) ? implode('<br>', $status->motd->html) : $status->motd->html;
                     echo "MOTD: $motdHtml<br>";
                     echo "IP: " . htmlspecialchars($ipAddress) . "<br>";
@@ -99,7 +117,10 @@
                     echo "Players Online: " . htmlspecialchars($status->players->online) . "<br>";
                     echo "Max Players: " . htmlspecialchars($status->players->max) . "<br>";
                 } else {
-                    echo "Server $hostname ($ipAddress) is offline.</p>";
+                    echo '<span class="dot offline"></span><span class="server-name">' . htmlspecialchars($hostname) . '</span></h3><hr><p>';
+                    // Display offline details (hostname and IP only)
+                    echo "IP: " . htmlspecialchars($ipAddress) . "<br>";
+                    echo "Hostname: " . htmlspecialchars($hostname) . "<br>";
                 }
             }
 
