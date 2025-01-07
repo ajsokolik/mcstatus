@@ -25,6 +25,7 @@
             display: flex;
             justify-content: space-between;
             padding: 20px;
+            flex-wrap: wrap; /* Ensure columns wrap on smaller screens */
         }
         .server-column {
             width: 48%;
@@ -118,9 +119,9 @@
                     // Check if version and protocol exist
                     $version_name = isset($status->version->name) ? htmlspecialchars($status->version->name) : 'N/A';
                     $version_protocol = isset($status->version->protocol) ? htmlspecialchars($status->version->protocol) : 'N/A';
-                    $java_version_clean = isset($status->version->name_clean) ? htmlspecialchars($status->version->name_clean) : 'N/A';
+                    $version_name= isset($status->version->name_clean) ? htmlspecialchars($status->version->name_clean) : $version_name;
 
-                    echo "Version: $version_name (Java: $java_version_clean)<br>";
+                    echo "Version: $version_name<br>";
                     echo "Protocol: $version_protocol<br>";
                     echo "Players Online: " . htmlspecialchars($status->players->online) . "<br>";
                     echo "Max Players: " . htmlspecialchars($status->players->max) . "<br>";
