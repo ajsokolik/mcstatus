@@ -24,11 +24,11 @@
         .server-container {
             display: flex;
             justify-content: space-between;
-            /* padding: 20px; */
+            padding: 20px; 
             flex-wrap: wrap; 
         }
         .server-column {
-            width: 40%;
+            width: 48%;
             background-color: rgba(0, 0, 0, 0.6);
             padding: 20px;
             border-radius: 10px;
@@ -67,6 +67,15 @@
             border: none;
             border-top: 2px solid #555;
             margin: 20px 0;
+        }
+        @media (max-width: 768px) {
+            .server-container {
+                flex-direction: column;
+            }
+            .server-column {
+                width: 100%; /* Stack the columns on small screens */
+                margin-bottom: 20px; /* Spacing between stacked columns */
+            }
         }
     </style>
 </head>
