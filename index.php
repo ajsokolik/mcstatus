@@ -89,8 +89,13 @@
                     echo "IP: " . htmlspecialchars($ipAddress) . "<br>";
                     echo "Hostname: " . htmlspecialchars($hostname) . "<br>";
                     echo "Port: " . htmlspecialchars($status->port) . "<br>";
-                    echo "Version: " . htmlspecialchars($status->version->name) . "<br>";
-                    echo "Protocol: " . htmlspecialchars($status->version->protocol) . "<br>";
+
+                    // Check if version and protocol exist
+                    $version_name = isset($status->version->name) ? htmlspecialchars($status->version->name) : 'N/A';
+                    $version_protocol = isset($status->version->protocol) ? htmlspecialchars($status->version->protocol) : 'N/A';
+                    
+                    echo "Version: $version_name<br>";
+                    echo "Protocol: $version_protocol<br>";
                     echo "Players Online: " . htmlspecialchars($status->players->online) . "<br>";
                     echo "Max Players: " . htmlspecialchars($status->players->max) . "<br>";
                 } else {
