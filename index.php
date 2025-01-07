@@ -104,7 +104,8 @@
             function display_server_info($type, $server, $api_url) {
                 $status = fetch_api_data($api_url);
                 if (!$status || isset($status->error)) {
-                    echo "Failed to retrieve data for $server.</p>";
+                    echo '<span class="dot offline-dot"></span><span class="server-name">' . strtoupper(htmlspecialchars($hostname)) . '</span></h3><hr><p>';
+                    echo "Failed to retrieve data for " . htmlspecialchars($hostname) . ".</p>";
                     return;
                 }
 
@@ -113,11 +114,9 @@
                 $ipAddress = ip2long($host) ? $server : gethostbyname($host);
                 $hostname = ip2long($host) ? gethostbyaddr($host) : $host;
                 
-                echo "<hr><h3>Status for " . ucfirst($type) . " Server<br />";
-                
                 // Check server status (online or offline)
                 if ($status->online) {
-                    echo '<span class="dot online-dot"></span><span class="server-name">' . htmlspecialchars($server) . '</span></h3><hr><p>';
+                    echo '<span class="dot online-dot"></span><span class="server-name">' . strtoupper(htmlspecialchars($server)) . '</span></h3><hr><p>';
                     // Display online details
                     $motdHtml = is_array($status->motd->html) ? implode('<br>', $status->motd->html) : $status->motd->html;
                     echo "MOTD: $motdHtml<br>";
@@ -135,7 +134,7 @@
                     echo "Players Online: " . htmlspecialchars($status->players->online) . "<br>";
                     echo "Max Players: " . htmlspecialchars($status->players->max) . "<br>";
                 } else {
-                    echo '<span class="dot offline-dot"></span><span class="server-name">' . htmlspecialchars($hostname) . '</span></h3><hr><p>';
+                    echo '<span class="dot offline-dot"></span><span class="server-name">' . strtoupper(htmlspecialchars($hostname)) . '</span></h3><hr><p>';
                     // Display offline details (hostname and IP only)
                     echo "IP: " . htmlspecialchars($ipAddress) . "<br>";
                     echo "Hostname: " . htmlspecialchars($hostname) . "<br>";
