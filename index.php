@@ -24,7 +24,7 @@
         .server-container {
             display: flex;
             justify-content: space-between;
-            padding: 20px;
+            /* padding: 20px; */
             flex-wrap: wrap; /* Ensure columns wrap on smaller screens */
         }
         .server-column {
