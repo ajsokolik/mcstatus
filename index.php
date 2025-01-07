@@ -76,8 +76,8 @@
                 flex-direction: column;
             }
             .server-column {
-                width: 100%; /* Stack the columns on small screens */
-                margin-bottom: 20px; /* Spacing between stacked columns */
+                width: 98%; /* Stack the columns on small screens */
+                margin-bottom: 10px; /* Spacing between stacked columns */
             }
         }
     </style>
