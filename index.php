@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minecraft Server Status Dashboard</title>
+    <title>Minecraft Server Status</title>
     <link rel="icon" href="img/favicon.ico" type="image/x-icon">
     <style>
         body {
@@ -44,48 +44,33 @@
             border-top: 2px solid #555;
             margin: 20px 0;
         }
-        @media (max-width: 768px) {
-            .server-container {
-                flex-direction: column;
-                align-items: center;
-            }
-            .server-column {
-                width: 90%;
-                margin-bottom: 20px;
-            }
-        }
     </style>
 </head>
 <body>
-    <h1 aria-label="Minecraft Server Status Dashboard">Minecraft Server Status Dashboard</h1>
+    <h1>Minecraft Server Status Dashboard</h1>
     <div class="server-container">
         <!-- Bedrock Servers Column -->
         <div class="server-column">
             <h2>Bedrock Servers</h2>
             <?php
-            // Function to fetch data from API with error handling and caching
+            // Function to fetch data from an API
             function fetch_api_data($api_url) {
                 $context = stream_context_create([
-                    'http' => ['timeout' => 5], // Set a timeout for the request
+                    'http' => [
+                        'timeout' => 5, // Set a timeout for the request
+                    ],
                 ]);
                 $results = @file_get_contents($api_url, false, $context); // Suppress warnings
                 if ($results === false) {
-                    return ["error" => "API request failed."]; // Optional: return error object
+                    return null;
                 }
                 return json_decode($results);
-            }
-
-            // Function to construct API URL based on server type
-            function get_api_url($type, $server) {
-                return $type === 'bedrock'
-                    ? "https://api.mcstatus.io/v2/status/bedrock/$server"
-                    : ($type === 'java' ? "https://api.mcstatus.io/v2/status/java/$server" : null);
             }
 
             // Function to display server information
             function display_server_info($type, $server, $api_url) {
                 $status = fetch_api_data($api_url);
-                if (!$status || isset($status['error'])) {
+                if (!$status || isset($status->error)) {
                     echo "Failed to retrieve data for $server.</p>";
                     return;
                 }
@@ -98,6 +83,7 @@
                 echo "<hr><h3>Status for " . ucfirst($type) . " Server<br />$server</h3><hr><p>";
 
                 if ($status->online) {
+                    // Accessing properties using -> (object access)
                     $motdHtml = is_array($status->motd->html) ? implode('<br>', $status->motd->html) : $status->motd->html;
                     echo "MOTD: $motdHtml<br>";
                     echo "IP: " . htmlspecialchars($ipAddress) . "<br>";
@@ -117,7 +103,7 @@
                 $env_var = "MINECRAFT_SERVER$i";
                 if (getenv($env_var)) {
                     $bedrock_server = getenv($env_var);
-                    $bedrock_api_url = get_api_url('bedrock', $bedrock_server);
+                    $bedrock_api_url = "https://api.mcstatus.io/v2/status/bedrock/" . $bedrock_server;
                     display_server_info("bedrock", $bedrock_server, $bedrock_api_url);
                 }
             }
@@ -133,7 +119,7 @@
                 $env_var = "JAVA_MINECRAFT_SERVER$i";
                 if (getenv($env_var)) {
                     $java_server = getenv($env_var);
-                    $java_api_url = get_api_url('java', $java_server);
+                    $java_api_url = "https://api.mcstatus.io/v2/status/java/" . $java_server;
                     display_server_info("java", $java_server, $java_api_url);
                 }
             }
