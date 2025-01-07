@@ -25,13 +25,14 @@
             display: flex;
             justify-content: space-between;
             padding: 20px; 
+            border-radius: 10px;
             /* flex-wrap: wrap; */
         }
         .server-column {
             width: 48%;
             background-color: rgba(0, 0, 0, 0.6);
             padding: 20px;
-            border-radius: 10px;
+            /* border-radius: 10px; */
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
         }
         h3 {
