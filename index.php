@@ -77,7 +77,7 @@
             }
             .server-column {
                 width: 98%; /* Stack the columns on small screens */
-                margin-bottom: 10px; /* Spacing between stacked columns */
+                margin: 10px; /* Spacing between stacked columns */
             }
         }
     </style>
