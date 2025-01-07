@@ -47,11 +47,6 @@
     </style>
 </head>
 <body>
-<?php
-echo "<pre>";
-print_r(getenv("MINECRAFT_SERVER1"));
-echo "</pre>";
-?>
     <h1>Minecraft Server Status Dashboard</h1>
     <div class="server-container">
         <!-- Bedrock Servers Column -->
@@ -132,7 +127,8 @@ echo "</pre>";
                 $env_var = "MINECRAFT_SERVER$i";
                 if (getenv($env_var)) {
                     $bedrock_server = getenv($env_var);
-                    $bedrock_api_url = "https://api.mcsrvstat.us/bedrock/2/" . $bedrock_server;
+                    #$bedrock_api_url = "https://api.mcsrvstat.us/bedrock/2/" . $bedrock_server;
+                    $bedrock_api_url = "https://api.mcsrvstat.us/bedrock/2/minecraft.sokolik.info"; // Hardcoded for testing
                     display_server_info("bedrock", $bedrock_server, $bedrock_api_url);
                 }
             }
