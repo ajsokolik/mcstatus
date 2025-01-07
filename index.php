@@ -1,10 +1,28 @@
 <?php
+// Function to fetch data from an API
+function fetch_api_data($api_url) {
+    $context = stream_context_create([
+        'http' => [
+            'timeout' => 5, // Set a timeout for the request
+        ],
+    ]);
+    $results = @file_get_contents($api_url, false, $context); // Suppress warnings
+    if ($results === false) {
+        return null;
+    }
+    return json_decode($results);
+}
+
 // Function to display server information
 function display_server_info($type, $server, $api_url) {
     echo '<hr><h3>Status for ' . ucfirst($type) . ' Server<br />' . htmlspecialchars($server) . '</h3><hr><p>';
 
-    $results = file_get_contents($api_url);
-    $status = json_decode($results);
+    $status = fetch_api_data($api_url);
+
+    if (!$status) {
+        echo "Failed to retrieve data from API for server " . htmlspecialchars($server) . "!</p>";
+        return;
+    }
 
     if (strpos($server, ':') !== false) {
         $host = substr($server, 0, strpos($server, ':'));
