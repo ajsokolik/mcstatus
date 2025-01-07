@@ -79,24 +79,29 @@
                 return htmlspecialchars($server, ENT_QUOTES, 'UTF-8');
             }
 
-            // Function to display server information
             function display_server_info($type, $server, $api_url) {
                 echo '<div class="box">';
                 echo '<h3>' . ucfirst($type) . ' Server: ' . sanitize_server_name($server) . '</h3>';
                 $status = fetch_status($api_url . $server);
-
+            
                 if (!$status) {
                     echo "<p>Unable to fetch server status. Please try again later.</p>";
                     echo '</div>';
                     return;
                 }
-
+            
                 $host = strpos($server, ':') !== false ? strstr($server, ':', true) : $server;
                 $ipAddress = ip2long($host) ? $server : gethostbyname($host);
                 $hostname = ip2long($host) ? gethostbyaddr($host) : $host;
-
+            
                 if (!empty($status->online)) {
-                    echo "<p>MOTD          : " . ($type === 'java' ? implode("", $status->motd->html) : $status->motd->html[0]) . "</p>";
+                    if ($type === 'java') {
+                        $motd = is_array($status->motd->html) ? implode("", $status->motd->html) : $status->motd->html;
+                    } else {
+                        $motd = is_array($status->motd->html) ? $status->motd->html[0] : $status->motd->html;
+                    }
+            
+                    echo "<p>MOTD          : " . $motd . "</p>";
                     echo "<p>IP            : " . $ipAddress . "</p>";
                     echo "<p>Hostname      : " . $hostname . "</p>";
                     echo "<p>Port          : " . $status->port . "</p>";
@@ -107,7 +112,7 @@
                 }
                 echo '</div>';
             }
-
+            
             // Display Java and Bedrock servers
             $maxServers = 10;
 
