@@ -25,7 +25,7 @@
             display: flex;
             justify-content: space-between;
             padding: 20px; 
-            flex-wrap: wrap; 
+            /* flex-wrap: wrap; */
         }
         .server-column {
             width: 48%;
