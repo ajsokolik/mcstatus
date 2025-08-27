@@ -44,12 +44,37 @@ button#refresh-all.loading::after {
 
 /* Visual enhancements */
 .motd { padding:5px 10px; border-radius:5px; margin-bottom:5px; }
-.player-bar, .latency-bar { height:12px; border-radius:6px; background-color:#444; margin:5px 0; position:relative; }
-.player-bar-fill, .latency-bar-fill { height:100%; border-radius:6px; width:0%; transition: width 0.5s; }
+.player-bar, .latency-bar {
+    height:16px; 
+    border-radius:8px;
+    background-color:#444;
+    margin:5px 0;
+    position: relative; /* ensures the text stays inside */
+}
+
+.player-bar, .latency-bar {
+    height:16px; 
+    border-radius:8px;
+    background-color:#444;
+    margin:5px 0 10px 0; /* <-- add bottom margin of 10px */
+    position: relative; /* ensures the text stays inside */
+}
+
 .player-bar-fill.green, .latency-bar-fill.green { background-color:#00ff00; }
 .player-bar-fill.yellow, .latency-bar-fill.yellow { background-color:#ffff00; color:#000; }
 .player-bar-fill.red, .latency-bar-fill.red { background-color:#ff0000; }
-.player-bar-text, .latency-bar-text { position:absolute; width:100%; text-align:center; font-size:0.75em; line-height:12px; color:#fff; font-weight:bold; }
+
+.player-bar-text, .latency-bar-text {
+    position: absolute;
+    width:100%;
+    text-align:center;
+    line-height:16px; /* match the bar height */
+    color:#fff;
+    font-weight:bold;
+    font-size:0.75em;
+    pointer-events: none; /* prevents hover issues */
+}
+
 
 /* Tooltip */
 .tooltip { position: relative; display: inline-block; cursor: default; }
