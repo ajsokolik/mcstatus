@@ -1,5 +1,10 @@
 # Simple Status Page for a Self Hosted Minecraft Servers
 This image is a simple single page that leverages the Minecraft APIs to display the status of your server. You will just need to provide your server name as an environment variable(s). There is support for up to 10 server names named MINECRAFT_SERVER1 through MINECRAFT_SERVER10. If using a port other that 19132, you can specify the port after the hostname with the standard hostname:port naming.
+
+The images are available at:
+- asokolik/mcstatus:latest
+- ghrc.io/ajsokolik/mcstatus:latest
+
 ## Docker
 Specify it in your Docker compose file.
 ```
