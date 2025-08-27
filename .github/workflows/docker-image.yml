@@ -50,6 +50,7 @@ jobs:
           elif [ "${GITHUB_REF_NAME}" = "testing" ]; then
             echo "IMAGE_TAG=testing" >> $GITHUB_ENV
             echo "DATE_IMAGE_TAG=testing-$DATE_TAG" >> $GITHUB_ENV
+          fi
 
       # Build and push Docker image with optional cache
       - name: Build and push Docker image
