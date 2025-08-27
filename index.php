@@ -103,7 +103,7 @@
                 return json_decode($results);
             }
 
-            // Function to display server information
+            // Function to display server information on screen
             function display_server_info($type, $server, $api_url) {
                 $status = fetch_api_data($api_url);
                 if (!$status || isset($status->error)) {
