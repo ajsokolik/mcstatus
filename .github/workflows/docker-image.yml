@@ -7,28 +7,24 @@ on:
     branches: [ "main" ]
   schedule:
     - cron: '0 0 * * *'  # daily at midnight UTC
-  workflow_dispatch:       # optional manual trigger
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout repository
       - uses: actions/checkout@v3
 
-      # Set up Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # Log in to Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-      # Log in to GHCR
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
@@ -36,24 +32,49 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Set image tags (YYYY-MM-DD + latest)
-      - name: Set image tag
+      - name: Set image tags
         id: vars
         run: |
           DATE_TAG=$(date +%F)
           echo "DATE_TAG=$DATE_TAG" >> $GITHUB_ENV
           echo "LATEST_TAG=latest" >> $GITHUB_ENV
 
-      # Build and push Docker image to both registries
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v4
-        with:
-          push: true
-          pull: true                       # ensures latest php:apache base
-          tags: |
-            ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.DATE_TAG }}
-            ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.LATEST_TAG }}
-            ghcr.io/${{ github.repository_owner }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.DATE_TAG }}
-            ghcr.io/${{ github.repository_owner }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.LATEST_TAG }}
-          cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:latest
-          cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:latest,mode=max
+      # Build image locally first to inspect digest
+      - name: Build Docker image locally
+        run: |
+          docker buildx build \
+            --pull \
+            --load \
+            -t ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.DATE_TAG }} \
+            -t ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.LATEST_TAG }} \
+            .
+
+      # Check if digest changed
+      - name: Check if image digest changed
+        id: digest
+        run: |
+          NEW_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.LATEST_TAG }} | cut -d'@' -f2)
+          echo "NEW_DIGEST=$NEW_DIGEST" >> $GITHUB_ENV
+          # Get existing digest from Docker Hub
+          EXISTING_DIGEST=$(curl -s -H "Authorization: Bearer ${{ secrets.DOCKER_HUB_TOKEN }}" \
+            "https://registry.hub.docker.com/v2/${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}/manifests/latest" \
+            | jq -r '.config.digest')
+          echo "EXISTING_DIGEST=$EXISTING_DIGEST" >> $GITHUB_ENV
+          if [ "$NEW_DIGEST" = "$EXISTING_DIGEST" ]; then
+            echo "DIGEST_UNCHANGED=true" >> $GITHUB_ENV
+          else
+            echo "DIGEST_UNCHANGED=false" >> $GITHUB_ENV
+          fi
+
+      # Push only if digest changed
+      - name: Push Docker image
+        if: env.DIGEST_UNCHANGED == 'false'
+        run: |
+          # Push to Docker Hub
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.DATE_TAG }}
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.LATEST_TAG }}
+          # Push to GHCR
+          docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.DATE_TAG }} ghcr.io/${{ github.repository_owner }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.DATE_TAG }}
+          docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.LATEST_TAG }} ghcr.io/${{ github.repository_owner }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.LATEST_TAG }}
+          docker push ghcr.io/${{ github.repository_owner }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.DATE_TAG }}
+          docker push ghcr.io/${{ github.repository_owner }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.LATEST_TAG }}
