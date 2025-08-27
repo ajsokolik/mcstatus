@@ -160,7 +160,7 @@
         <div class="server-column">
             <h2>Java Servers</h2>
             <?php
-            // Display Java servers
+            // Display All Java servers 
             for ($i = 1; $i <= 10; $i++) {
                 $env_var = "JAVA_MINECRAFT_SERVER$i";
                 if (getenv($env_var)) {
