@@ -92,11 +92,28 @@ button#refresh-all.loading::after { content: ''; position: absolute; top: 50%; l
 .offline-dot { background-color:#ff0000; }
 .last-updated { font-size:0.85em; color:#ccc; margin-top:10px; }
 .motd { padding:5px 10px; border-radius:5px; margin-bottom:5px; }
-.player-bar, .latency-bar { height:20px; border-radius:10px; background-color:#444; margin:5px 0 10px 0; position: relative; }
+.player-bar, .latency-bar {
+    height: 20px;
+    border-radius: 10px;
+    background-color: #444;
+    margin: 5px 0 10px 0;
+    position: relative;
+    min-width: 120px;   /* prevents tiny wrapping */
+}
 .player-bar-fill.green, .latency-bar-fill.green { background-color:#00ff00; }
 .player-bar-fill.yellow, .latency-bar-fill.yellow { background-color:#ffff00; color:#000; }
 .player-bar-fill.red, .latency-bar-fill.red { background-color:#ff0000; }
-.player-bar-text, .latency-bar-text { position: absolute; width:100%; text-align:center; line-height:20px; color:#fff; font-weight:bold; font-size:0.85em; pointer-events: none; }
+.player-bar-text, .latency-bar-text {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    line-height: 20px; /* match bar height */
+    color: #fff;
+    font-weight: bold;
+    font-size: 0.85em;
+    pointer-events: none;
+    white-space: nowrap;      /* prevent line breaks */
+}
 .tooltip { position: relative; display: inline-block; cursor: default; }
 .tooltip .tooltiptext { visibility: hidden; width: max-content; max-width: 200px; background-color: rgba(0,0,0,0.8); color: #fff; text-align: center; padding: 4px 8px; border-radius: 5px; font-size: 0.75em; position: absolute; z-index: 10; bottom: 125%; left: 50%; transform: translateX(-50%); opacity: 0; transition: opacity 0.3s; white-space: nowrap; }
 .tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
