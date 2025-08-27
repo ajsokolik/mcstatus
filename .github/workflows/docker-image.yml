@@ -64,7 +64,8 @@ jobs:
             ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.DATE_IMAGE_TAG }}
             ghcr.io/ajsokolik/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.IMAGE_TAG }}
             ghcr.io/ajsokolik/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.DATE_IMAGE_TAG }}
-          cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}@${{ steps.build.outputs.digest }}
+          # Branch-specific caching: use existing tag
+          cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.IMAGE_TAG }}
           cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.IMAGE_TAG }},mode=max
           outputs: type=image,attr=digest
 
