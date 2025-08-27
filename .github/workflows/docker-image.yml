@@ -90,5 +90,4 @@ jobs:
             Docker image pushed with digest: ${{ steps.build.outputs.digest }}
           draft: false
           prerelease: ${{ github.ref_name == 'testing' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+          token: ${{ secrets.GH_PAT }}  # <- pass PAT here
