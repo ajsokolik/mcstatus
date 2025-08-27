@@ -43,7 +43,7 @@ button#refresh-all.loading::after {
 .last-updated { font-size:0.85em; color:#ccc; margin-top:10px; }
 
 /* Visual enhancements */
-.motd { background-color: rgba(255,255,255,0.1); padding:5px 10px; border-radius:5px; margin-bottom:5px; }
+.motd { padding:5px 10px; border-radius:5px; margin-bottom:5px; }
 .player-bar, .latency-bar { height:12px; border-radius:6px; background-color:#444; margin:5px 0; position:relative; }
 .player-bar-fill, .latency-bar-fill { height:100%; border-radius:6px; width:0%; transition: width 0.5s; }
 .player-bar-fill.green, .latency-bar-fill.green { background-color:#00ff00; }
@@ -107,9 +107,10 @@ function display_server_info($server,$api_url){
     echo "<p>Hostname: ".htmlspecialchars($hostname)."</p>";
 
     if($isOnline){
+        // Render MOTD with allowed span tags for colors
         $motdRaw=is_array($status->motd->html)?implode("\n",$status->motd->html):$status->motd->html;
-        $motdHtml=nl2br(htmlspecialchars($motdRaw));
-        echo '<div class="motd">MOTD: '.$motdHtml.'</div>';
+        $motdSafe = strip_tags($motdRaw, '<span>');
+        echo '<div class="motd">MOTD: '.$motdSafe.'</div>';
 
         $onlinePlayers = $status->players->online;
         $maxPlayers = $status->players->max;
@@ -173,13 +174,12 @@ async function refreshAllServers(){
     btn.classList.add('loading');
     const cards=Array.from(document.querySelectorAll('.server-card'));
     const fetchPromises=cards.map(card=>{
-        const server=card.dataset.server;
         const api=card.dataset.api;
         card.innerHTML='<div class="status">Refreshing...</div>';
         return fetch('refresh.php?api='+encodeURIComponent(api))
             .then(res=>res.text())
             .then(html=>{ card.outerHTML=html; })
-            .catch(()=>{ card.innerHTML='<div class="status"><span class="dot offline-dot"></span>'+server+' (failed)</div>'; });
+            .catch(()=>{ card.innerHTML='<div class="status"><span class="dot offline-dot"></span>'+card.dataset.server+' (failed)</div>'; });
     });
     await Promise.all(fetchPromises);
     btn.classList.remove('loading');

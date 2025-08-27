@@ -49,8 +49,8 @@ function render_server_card($api_url){
 
     if($isOnline){
         $motdRaw=is_array($status->motd->html)?implode("\n",$status->motd->html):$status->motd->html;
-        $motdHtml=nl2br(htmlspecialchars($motdRaw));
-        echo '<div class="motd">MOTD: '.$motdHtml.'</div>';
+        $motdSafe = strip_tags($motdRaw, '<span>');
+        echo '<div class="motd">MOTD: '.$motdSafe.'</div>';
 
         $onlinePlayers = $status->players->online;
         $maxPlayers = $status->players->max;
@@ -76,4 +76,3 @@ function render_server_card($api_url){
 }
 
 render_server_card($api_url);
-?>
