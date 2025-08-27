@@ -1,16 +1,12 @@
-name: Docker Image CI
+name: Daily Docker Image Rebuild
 
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
   schedule:
     - cron: '0 0 * * *'  # daily at midnight UTC
   workflow_dispatch:
 
 jobs:
-  build:
+  rebuild:
     runs-on: ubuntu-latest
 
     steps:
@@ -32,17 +28,16 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set image tags
+      - name: Set image tag
+        id: vars
         run: |
           DATE_TAG=$(date +%F)
           echo "DATE_TAG=$DATE_TAG" >> $GITHUB_ENV
           echo "LATEST_TAG=latest" >> $GITHUB_ENV
 
       - name: Build and push Docker image
-        id: build
         uses: docker/build-push-action@v4
         with:
-          context: .
           push: true
           pull: true
           tags: |
@@ -52,12 +47,3 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.LATEST_TAG }}
           cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:latest
           cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:latest,mode=max
-          outputs: type=image,attr=digest
-
-      - name: Show push status
-        run: |
-          if [ "${{ steps.build.outputs.digest }}" != "" ]; then
-            echo "✅ Image built and pushed. Digest: ${{ steps.build.outputs.digest }}"
-          else
-            echo "ℹ️ No changes detected. Image push was skipped."
-          fi
