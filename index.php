@@ -2,9 +2,7 @@
 // Ensure cache directory exists
 $cache_dir = __DIR__ . '/cache';
 if (!is_dir($cache_dir)) {
-    if (!mkdir($cache_dir, 0777, true)) {
-        die("Failed to create cache directory at $cache_dir");
-    }
+    mkdir($cache_dir, 0755, true);
 }
 ?>
 <!DOCTYPE html>
@@ -45,36 +43,25 @@ button#refresh-all.loading::after {
 /* Visual enhancements */
 .motd { padding:5px 10px; border-radius:5px; margin-bottom:5px; }
 .player-bar, .latency-bar {
-    height:16px; 
-    border-radius:8px;
+    height:20px;  /* was 16px */
+    border-radius:10px;
     background-color:#444;
-    margin:5px 0;
-    position: relative; /* ensures the text stays inside */
+    margin:5px 0 10px 0;
+    position: relative;
 }
-
-.player-bar, .latency-bar {
-    height:16px; 
-    border-radius:8px;
-    background-color:#444;
-    margin:5px 0 10px 0; /* <-- add bottom margin of 10px */
-    position: relative; /* ensures the text stays inside */
-}
-
 .player-bar-fill.green, .latency-bar-fill.green { background-color:#00ff00; }
 .player-bar-fill.yellow, .latency-bar-fill.yellow { background-color:#ffff00; color:#000; }
 .player-bar-fill.red, .latency-bar-fill.red { background-color:#ff0000; }
-
 .player-bar-text, .latency-bar-text {
     position: absolute;
     width:100%;
     text-align:center;
-    line-height:16px; /* match the bar height */
+    line-height:20px; /* match the bar height */
     color:#fff;
     font-weight:bold;
-    font-size:0.75em;
-    pointer-events: none; /* prevents hover issues */
+    font-size:0.85em; /* slightly larger for readability */
+    pointer-events: none;
 }
-
 
 /* Tooltip */
 .tooltip { position: relative; display: inline-block; cursor: default; }
@@ -108,56 +95,59 @@ function get_latency_color($ms){
     return 'red';
 }
 
-function display_server_info($server,$api_url){
-    $fetched=fetch_api_data($api_url);
-    $status=$fetched?$fetched['data']:null;
-    $updated_at=$fetched?$fetched['updated_at']:time();
-    $host=strpos($server,':')!==false?substr($server,0,strpos($server,':')):$server;
-    $ipAddress=filter_var($host,FILTER_VALIDATE_IP)?$host:gethostbyname($host);
-    $hostname=$host;
+function display_server_info($type, $server, $api_url) {
+    $status = fetch_api_data($api_url);
 
-    echo '<div class="server-card" data-server="'.htmlspecialchars($server).'" data-api="'.htmlspecialchars($api_url).'">';
-    if(!$status||isset($status->error)){
-        echo '<div class="status"><span class="dot offline-dot"></span><span class="server-name">'.strtoupper(htmlspecialchars($server)).'</span></div>';
-        echo "<p>Failed to retrieve data.</p>";
-        echo "<p>IP: ".htmlspecialchars($ipAddress)."</p>";
-        echo "<p>Hostname: ".htmlspecialchars($hostname)."</p>";
-        echo '<div class="last-updated tooltip" data-timestamp="'.$updated_at.'">Last updated: 0s ago<span class="tooltiptext">Updated at: '.date('Y-m-d H:i:s',$updated_at).'</span></div>';
-        echo '</div>'; return;
-    }
+    // Extract host and hostname
+    $host = strpos($server, ':') !== false ? substr($server, 0, strpos($server, ':')) : $server;
+    $ipAddress = ip2long($host) ? $server : gethostbyname($host);
+    $hostname = ip2long($host) ? gethostbyaddr($host) : $host;
 
-    $isOnline=!empty($status->online);
-    echo '<div class="status"><span class="dot '.($isOnline?'online-dot':'offline-dot').'"></span><span class="server-name">'.strtoupper(htmlspecialchars($server)).'</span></div>';
-    echo "<p>IP: ".htmlspecialchars($ipAddress)."</p>";
-    echo "<p>Hostname: ".htmlspecialchars($hostname)."</p>";
+    echo '<div class="server-card">';
 
-    if($isOnline){
-        // Render MOTD with allowed span tags for colors
-        $motdRaw=is_array($status->motd->html)?implode("\n",$status->motd->html):$status->motd->html;
-        $motdSafe = strip_tags($motdRaw, '<span>');
-        echo '<div class="motd">MOTD: '.$motdSafe.'</div>';
+    // Online/offline indicator
+    if (!$status || isset($status->error) || !$status->online) {
+        echo '<div class="status"><span class="dot offline-dot"></span>' . strtoupper(htmlspecialchars($hostname)) . '</div>';
+        echo '<p>IP: '.htmlspecialchars($ipAddress).'<br>Hostname: '.htmlspecialchars($hostname).'</p>';
+    } else {
+        echo '<div class="status"><span class="dot online-dot"></span>' . strtoupper(htmlspecialchars($server)) . '</div>';
 
-        $onlinePlayers = $status->players->online;
-        $maxPlayers = $status->players->max;
-        $fillPercent = $maxPlayers>0 ? ($onlinePlayers/$maxPlayers)*100 : 0;
-        $colorClass=$fillPercent<50?'green':($fillPercent<80?'yellow':'red');
-        echo '<div class="player-bar tooltip"><div class="player-bar-fill '.$colorClass.'" style="width:'.$fillPercent.'%;"></div><div class="player-bar-text">'.$onlinePlayers.' / '.$maxPlayers.'</div><span class="tooltiptext">Players online: '.$onlinePlayers.'/'.$maxPlayers.'</span></div>';
+        // MOTD (render HTML)
+        $motdHtml = is_array($status->motd->html) ? implode('<br>', $status->motd->html) : $status->motd->html;
+        echo '<div class="motd">'.$motdHtml.'</div>';
 
-        $version_name=isset($status->version->name_clean)?htmlspecialchars($status->version->name_clean)
-            :(isset($status->version->name)?htmlspecialchars($status->version->name):'N/A');
-        $version_protocol=isset($status->version->protocol)?htmlspecialchars($status->version->protocol):'N/A';
-        echo "Version: $version_name<br>";
-        echo "Protocol: $version_protocol<br>";
+        echo '<p>IP: '.htmlspecialchars($ipAddress).'<br>';
+        echo 'Hostname: '.htmlspecialchars($hostname).'<br>';
+        echo 'Port: '.htmlspecialchars($status->port).'<br>';
 
-        $latency=isset($status->latency)?round($status->latency):null;
-        if($latency!==null){
-            $latColor=get_latency_color($latency);
-            echo '<div class="latency-bar tooltip"><div class="latency-bar-fill '.$latColor.'" style="width:'.min($latency,500)/5 .'%"></div><div class="latency-bar-text">'.$latency.' ms</div><span class="tooltiptext">Exact latency: '.$latency.' ms</span></div>';
+        // Version / Protocol
+        $version_name = isset($status->version->name_clean) ? htmlspecialchars($status->version->name_clean) : (isset($status->version->name) ? htmlspecialchars($status->version->name) : 'N/A');
+        $version_protocol = isset($status->version->protocol) ? htmlspecialchars($status->version->protocol) : 'N/A';
+        echo 'Version: '.$version_name.'<br>';
+        echo 'Protocol: '.$version_protocol.'<br>';
+
+        // Player bar
+        $onlinePlayers = isset($status->players->online) ? $status->players->online : 0;
+        $maxPlayers = isset($status->players->max) ? $status->players->max : 0;
+        $fillPercent = $maxPlayers > 0 ? round(($onlinePlayers / $maxPlayers) * 100) : 0;
+
+        // Color logic
+        if ($onlinePlayers == 0) {
+            $colorClass = 'red';
+        } elseif ($onlinePlayers / $maxPlayers < 0.5) {
+            $colorClass = 'yellow';
+        } else {
+            $colorClass = 'green';
         }
+
+        echo '<div class="player-bar tooltip">
+                <div class="player-bar-fill '.$colorClass.'" style="width:'.$fillPercent.'%;"></div>
+                <div class="player-bar-text">'.$onlinePlayers.' / '.$maxPlayers.'</div>
+                <span class="tooltiptext">Players online: '.$onlinePlayers.'/'.$maxPlayers.'</span>
+              </div>';
     }
 
-    echo '<div class="last-updated tooltip" data-timestamp="'.$updated_at.'">Last updated: 0s ago<span class="tooltiptext">Updated at: '.date('Y-m-d H:i:s',$updated_at).'</span></div>';
-    echo '</div>';
+    echo '</div>'; // close server-card
 }
 
 // Bedrock servers
