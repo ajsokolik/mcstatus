@@ -6,9 +6,9 @@ permissions:
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "testing" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "testing" ]
   schedule:
     - cron: '0 0 * * *'  # daily at midnight UTC
   workflow_dispatch:
@@ -40,12 +40,16 @@ jobs:
           username: ajsokolik
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Set image tags (date-based + latest)
+      # Set image tags based on branch
       - name: Set image tags
         run: |
           DATE_TAG=$(date +%F)
-          echo "DATE_TAG=$DATE_TAG" >> $GITHUB_ENV
-          echo "LATEST_TAG=latest" >> $GITHUB_ENV
+          if [ "${GITHUB_REF_NAME}" = "main" ]; then
+            echo "IMAGE_TAG=latest" >> $GITHUB_ENV
+            echo "DATE_IMAGE_TAG=$DATE_TAG" >> $GITHUB_ENV
+          elif [ "${GITHUB_REF_NAME}" = "testing" ]; then
+            echo "IMAGE_TAG=testing" >> $GITHUB_ENV
+            echo "DATE_IMAGE_TAG=testing-$DATE_TAG" >> $GITHUB_ENV
 
       # Build and push Docker image
       - name: Build and push Docker image
@@ -56,12 +60,12 @@ jobs:
           push: true
           pull: true
           tags: |
-            ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.DATE_TAG }}
-            ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.LATEST_TAG }}
-            ghcr.io/ajsokolik/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.DATE_TAG }}
-            ghcr.io/ajsokolik/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.LATEST_TAG }}
-          cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:latest
-          cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:latest,mode=max
+            ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.IMAGE_TAG }}
+            ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.DATE_IMAGE_TAG }}
+            ghcr.io/ajsokolik/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.IMAGE_TAG }}
+            ghcr.io/ajsokolik/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.DATE_IMAGE_TAG }}
+          cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}@${{ steps.build.outputs.digest }}
+          cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.IMAGE_TAG }},mode=max
           outputs: type=image,attr=digest
 
       # Friendly log message
@@ -74,15 +78,15 @@ jobs:
 
       # Create a GitHub release for this build (date-based tag)
       - name: Create GitHub release
-        if: steps.build.outputs.digest != ''   # only if image changed
+        if: steps.build.outputs.digest != ''
         id: release
         uses: actions/create-release@v1
         with:
-          tag_name: ${{ env.DATE_TAG }}
-          release_name: "Build ${{ env.DATE_TAG }}"
+          tag_name: ${{ env.DATE_IMAGE_TAG }}
+          release_name: "Build ${{ env.DATE_IMAGE_TAG }}"
           body: |
             Docker image pushed with digest: ${{ steps.build.outputs.digest }}
           draft: false
-          prerelease: false
+          prerelease: ${{ github.ref_name == 'testing' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
