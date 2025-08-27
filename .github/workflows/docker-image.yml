@@ -43,8 +43,10 @@ jobs:
             echo "IMAGE_TAG=latest" >> $GITHUB_ENV
             echo "DATE_IMAGE_TAG=$DATE_TAG" >> $GITHUB_ENV
           elif [ "${GITHUB_REF_NAME}" = "testing" ]; then
+            # Add timestamp to make testing tags unique
+            TIMESTAMP=$(date +%H%M%S)
             echo "IMAGE_TAG=testing" >> $GITHUB_ENV
-            echo "DATE_IMAGE_TAG=testing-$DATE_TAG" >> $GITHUB_ENV
+            echo "DATE_IMAGE_TAG=testing-$DATE_TAG-$TIMESTAMP" >> $GITHUB_ENV
           fi
 
       - name: Build and push Docker image
@@ -62,7 +64,6 @@ jobs:
           cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.IMAGE_TAG }},mode=max,optional=true
           cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.IMAGE_TAG }},mode=max
 
-      # Capture digest in a way compatible with $GITHUB_OUTPUT
       - name: Capture image digest
         if: always()
         run: |
