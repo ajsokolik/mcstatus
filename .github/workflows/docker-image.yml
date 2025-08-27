@@ -91,4 +91,4 @@ jobs:
           draft: false
           prerelease: ${{ github.ref_name == 'testing' }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
