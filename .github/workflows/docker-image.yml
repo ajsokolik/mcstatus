@@ -33,48 +33,31 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set image tags
-        id: vars
         run: |
           DATE_TAG=$(date +%F)
           echo "DATE_TAG=$DATE_TAG" >> $GITHUB_ENV
           echo "LATEST_TAG=latest" >> $GITHUB_ENV
 
-      # Build image locally first to inspect digest
-      - name: Build Docker image locally
-        run: |
-          docker buildx build \
-            --pull \
-            --load \
-            -t ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.DATE_TAG }} \
-            -t ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.LATEST_TAG }} \
-            .
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          pull: true
+          tags: |
+            ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.DATE_TAG }}
+            ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.LATEST_TAG }}
+            ghcr.io/${{ github.repository_owner }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.DATE_TAG }}
+            ghcr.io/${{ github.repository_owner }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.LATEST_TAG }}
+          cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:latest
+          cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:latest,mode=max
+          outputs: type=image,attr=digest
 
-      # Check if digest changed
-      - name: Check if image digest changed
-        id: digest
+      - name: Show push status
         run: |
-          NEW_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.LATEST_TAG }} | cut -d'@' -f2)
-          echo "NEW_DIGEST=$NEW_DIGEST" >> $GITHUB_ENV
-          # Get existing digest from Docker Hub
-          EXISTING_DIGEST=$(curl -s -H "Authorization: Bearer ${{ secrets.DOCKER_HUB_TOKEN }}" \
-            "https://registry.hub.docker.com/v2/${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}/manifests/latest" \
-            | jq -r '.config.digest')
-          echo "EXISTING_DIGEST=$EXISTING_DIGEST" >> $GITHUB_ENV
-          if [ "$NEW_DIGEST" = "$EXISTING_DIGEST" ]; then
-            echo "DIGEST_UNCHANGED=true" >> $GITHUB_ENV
+          if [ "${{ steps.build.outputs.digest }}" != "" ]; then
+            echo "✅ Image built and pushed. Digest: ${{ steps.build.outputs.digest }}"
           else
-            echo "DIGEST_UNCHANGED=false" >> $GITHUB_ENV
+            echo "ℹ️ No changes detected. Image push was skipped."
           fi
-
-      # Push only if digest changed
-      - name: Push Docker image
-        if: env.DIGEST_UNCHANGED == 'false'
-        run: |
-          # Push to Docker Hub
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.DATE_TAG }}
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.LATEST_TAG }}
-          # Push to GHCR
-          docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.DATE_TAG }} ghcr.io/${{ github.repository_owner }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.DATE_TAG }}
-          docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.LATEST_TAG }} ghcr.io/${{ github.repository_owner }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.LATEST_TAG }}
-          docker push ghcr.io/${{ github.repository_owner }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.DATE_TAG }}
-          docker push ghcr.io/${{ github.repository_owner }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ env.LATEST_TAG }}
