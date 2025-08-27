@@ -76,6 +76,7 @@ jobs:
             echo "✅ Image built and pushed. Digest: ${{ steps.build.outputs.digest }}"
           else
             echo "ℹ️ No changes detected. Image push was skipped."
+          fi
 
       # Create a GitHub release for this build (date-based tag)
       - name: Create GitHub release
