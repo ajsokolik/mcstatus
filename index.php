@@ -26,50 +26,81 @@ function fetch_api_data($api_url) {
 
 // Function to display server info
 function display_server_info($type, $server, $api_url) {
+    // Fetch status from API
     $status = fetch_api_data($api_url);
 
     // Parse host and port
-    $host = strpos($server, ':') !== false ? explode(':', $server)[0] : $server;
-    $port = strpos($server, ':') !== false ? explode(':', $server)[1] : ($type === 'bedrock' ? 19132 : 25565);
-    $ipAddress = gethostbyname($host);
-    $hostname = @gethostbyaddr($ipAddress) ?: $host;
-
-    $statusDot = ($status && isset($status->online) && $status->online) ? '<span class="dot online-dot"></span>' : '<span class="dot offline-dot"></span>';
-
-    echo '<div class="server-card">';
-    echo '<div class="status">' . $statusDot . strtoupper(htmlspecialchars($server)) . '</div>';
-
-    if (!$status || isset($status->error) || !$status->online) {
-        echo '<p>IP: ' . htmlspecialchars($ipAddress) . '<br>';
-        echo 'Hostname: ' . htmlspecialchars($hostname) . '<br>';
-        echo 'Port: ' . htmlspecialchars($port) . '<br>';
-        echo '<em>Offline or failed to retrieve data</em></p>';
+    if (strpos($server, ':') !== false) {
+        list($host, $portOverride) = explode(':', $server, 2);
+        $port = intval($portOverride);
     } else {
-        // MOTD
-        $motdHtml = is_array($status->motd->clean) ? implode('<br>', $status->motd->clean) : $status->motd->clean;
-        echo '<p class="motd">' . $motdHtml . '</p>';
-
-        echo '<p>IP: ' . htmlspecialchars($ipAddress) . '<br>';
-        echo 'Hostname: ' . htmlspecialchars($hostname) . '<br>';
-        echo 'Port: ' . htmlspecialchars($status->port) . '<br>';
-        $version_name = $status->version->name_clean ?? $status->version->name ?? 'N/A';
-        echo 'Version: ' . htmlspecialchars($version_name) . '<br>';
-        echo 'Protocol: ' . htmlspecialchars($status->version->protocol ?? 'N/A') . '</p>';
-
-        // Player bar
-        $onlinePlayers = $status->players->online ?? 0;
-        $maxPlayers = $status->players->max ?? 1;
-        $fillPercent = min(100, ($onlinePlayers / $maxPlayers) * 100);
-        $colorClass = $fillPercent < 50 ? 'red' : ($fillPercent < 80 ? 'yellow' : 'green');
-
-        echo '<div class="player-bar tooltip">';
-        echo '<div class="player-bar-fill ' . $colorClass . '" style="width:' . $fillPercent . '%;"></div>';
-        echo '<div class="player-bar-text">' . $onlinePlayers . ' / ' . $maxPlayers . '</div>';
-        echo '<span class="tooltiptext">Players online: ' . $onlinePlayers . '/' . $maxPlayers . '</span>';
-        echo '</div>';
+        $host = $server;
+        $port = ($type === 'bedrock') ? 19132 : 25565; // default ports
     }
 
-    echo '</div>'; // server-card
+    // Determine display hostname
+    if (filter_var($host, FILTER_VALIDATE_IP)) {
+        $reverse = @gethostbyaddr($host);
+        $displayName = $reverse ? $reverse : $host;
+    } else {
+        $displayName = $host;
+    }
+
+    // Determine online/offline
+    $online = ($status && isset($status->online) && $status->online);
+
+    $statusDot = $online ? '<span class="dot online-dot"></span>' : '<span class="dot offline-dot"></span>';
+
+    echo '<div class="server-card">';
+    echo '<div class="status">' . $statusDot . strtoupper(htmlspecialchars($displayName)) . '</div>';
+
+    if ($online) {
+        // MOTD handling
+        if (isset($status->motd->html)) {
+            $motdHtml = is_array($status->motd->html) ? implode('<br>', $status->motd->html) : $status->motd->html;
+            echo '<div class="motd">' . $motdHtml . '</div>';
+        }
+
+        // IP and hostname
+        echo "IP: " . htmlspecialchars($status->ip ?? $host) . "<br>";
+        echo "Hostname: " . htmlspecialchars($displayName) . "<br>";
+        echo "Port: " . htmlspecialchars($status->port ?? $port) . "<br>";
+
+        // Version info
+        $version_name = $status->version->name_clean ?? ($status->version->name ?? 'N/A');
+        $version_protocol = $status->version->protocol ?? 'N/A';
+        echo "Version: " . htmlspecialchars($version_name) . "<br>";
+        echo "Protocol: " . htmlspecialchars($version_protocol) . "<br>";
+
+        // Player info with bar
+        $onlinePlayers = $status->players->online ?? 0;
+        $maxPlayers = $status->players->max ?? 0;
+        $fillPercent = $maxPlayers > 0 ? round(($onlinePlayers / $maxPlayers) * 100) : 0;
+
+        // Determine color for player bar
+        if ($fillPercent < 50) {
+            $colorClass = 'green';
+        } elseif ($fillPercent < 80) {
+            $colorClass = 'yellow';
+        } else {
+            $colorClass = 'red';
+        }
+
+        echo '<div class="player-bar tooltip">
+                <div class="player-bar-fill ' . $colorClass . '" style="width:' . $fillPercent . '%;"></div>
+                <div class="player-bar-text">' . $onlinePlayers . ' / ' . $maxPlayers . '</div>
+                <span class="tooltiptext">Players online: ' . $onlinePlayers . '/' . $maxPlayers . '</span>
+              </div>';
+
+    } else {
+        // Offline info
+        echo "IP: " . htmlspecialchars($host) . "<br>";
+        echo "Hostname: " . htmlspecialchars($displayName) . "<br>";
+        echo "Port: " . htmlspecialchars($port) . "<br>";
+        echo '<p class="offline">Server offline</p>';
+    }
+
+    echo '</div>'; // end server-card
 }
 ?>
 <!DOCTYPE html>
