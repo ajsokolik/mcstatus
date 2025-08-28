@@ -5,141 +5,155 @@ if (!is_dir($cache_dir)) {
     mkdir($cache_dir, 0755, true);
 }
 
-// Example function to display one server (you can call it multiple times)
-function display_server_info($hostname, $apiUrl, $serverName) {
-    // Fetch server data
-    $response = @file_get_contents($apiUrl);
-    $data = $response ? json_decode($response, true) : null;
+function parse_server_env($prefix, $type) {
+    $servers = [];
+    for ($i = 1; $i <= 9; $i++) {
+        $env = getenv($prefix . $i);
+        if ($env && trim($env) !== '') {
+            if (strpos($env, ':') !== false) {
+                [$host, $port] = explode(':', $env, 2);
+            } else {
+                $host = $env;
+                $port = ($type === "bedrock") ? 19132 : 25565;
+            }
+            $servers[] = [
+                'host' => $host,
+                'port' => (int)$port,
+                'type' => $type
+            ];
+        }
+    }
+    return $servers;
+}
 
-    $online = $data && isset($data['online']) && $data['online'] ? true : false;
-    $onlinePlayers = $online && isset($data['players']['online']) ? $data['players']['online'] : 0;
-    $maxPlayers = $online && isset($data['players']['max']) ? $data['players']['max'] : 0;
-    $version = $online && isset($data['version']['name']) ? $data['version']['name'] : 'N/A';
-    $protocol = $online && isset($data['version']['protocol']) ? $data['version']['protocol'] : 'N/A';
-    $motd = $online && isset($data['motd']['clean'][0]) ? $data['motd']['clean'][0] : 'Server offline';
-    $latency = $online && isset($data['debug']['ping']) ? $data['debug']['ping'] : 0;
+$bedrock_servers = parse_server_env("MINECRAFT_SERVER", "bedrock");
+$java_servers = parse_server_env("JAVA_MINECRAFT_SERVER", "java");
+$all_servers = array_merge($bedrock_servers, $java_servers);
 
-    // Player bar %
-    $fillPercent = ($maxPlayers > 0) ? ($onlinePlayers / $maxPlayers) * 100 : 0;
-    $fillPercent = min(100, max(0, $fillPercent));
+function fetch_server_data($server) {
+    global $cache_dir;
+    $host = $server['host'];
+    $port = $server['port'];
+    $type = $server['type'];
 
-    // Latency %
-    $latencyPercent = ($latency > 0) ? min(100, $latency) : 0;
+    $cache_file = "$cache_dir/{$type}_{$host}_{$port}.json";
+    $cache_ttl = 60; // 1 min
 
-    // Colors
-    $playerColor = ($fillPercent < 50) ? 'green' : (($fillPercent < 80) ? 'yellow' : 'red');
-    $latencyColor = ($latency < 100) ? 'green' : (($latency < 200) ? 'yellow' : 'red');
+    if (file_exists($cache_file) && (time() - filemtime($cache_file) < $cache_ttl)) {
+        $json = file_get_contents($cache_file);
+    } else {
+        $url = "https://api.mcstatus.io/v2/status/{$type}/{$host}:{$port}";
+        $json = @file_get_contents($url);
+        if ($json) {
+            file_put_contents($cache_file, $json);
+        } else {
+            $json = '{"online":false}';
+        }
+    }
+    return json_decode($json, true);
+}
+
+function display_server_info($server, $data) {
+    $host = htmlspecialchars($server['host']);
+    $port = $server['port'];
+    $type = ucfirst($server['type']);
 
     echo '<div class="server-card">';
-    echo '<h2>' . strtoupper($serverName) . '</h2>';
-    echo '<div class="motd">' . htmlspecialchars($motd) . '</div>';
-    echo '<p><strong>IP:</strong> ' . $_SERVER['SERVER_ADDR'] . '</p>';
-    echo '<p><strong>Hostname:</strong> ' . htmlspecialchars($hostname) . '</p>';
-    echo '<p><strong>Port:</strong> 19132</p>';
-    echo '<p><strong>Version:</strong> ' . $version . '</p>';
-    echo '<p><strong>Protocol:</strong> ' . $protocol . '</p>';
+    echo "<h2>{$host}:{$port} ({$type})</h2>";
 
-    // Player bar
-    echo '<div class="player-bar tooltip">';
-    echo '<div class="player-bar-fill ' . $playerColor . '" style="width:' . $fillPercent . '%;"></div>';
-    echo '<div class="player-bar-text">' . $onlinePlayers . ' / ' . $maxPlayers . '</div>';
-    echo '<span class="tooltiptext">Players online: ' . $onlinePlayers . '/' . $maxPlayers . '</span>';
+    if (!empty($data['online']) && $data['online']) {
+        echo '<p><span class="dot online-dot"></span> Online</p>';
+
+        // MOTD
+        if (!empty($data['motd']['raw'])) {
+            echo '<div class="motd">' . htmlspecialchars($data['motd']['raw']) . '</div>';
+        }
+
+        // Version & Protocol
+        if (!empty($data['version']['name'])) {
+            echo '<p>Version: ' . htmlspecialchars($data['version']['name']) . '</p>';
+        }
+        if (!empty($data['version']['protocol'])) {
+            echo '<p>Protocol: ' . htmlspecialchars($data['version']['protocol']) . '</p>';
+        }
+
+        // Player bar
+        $online = $data['players']['online'] ?? 0;
+        $max = $data['players']['max'] ?? 0;
+        $fillPercent = $max > 0 ? ($online / $max * 100) : 0;
+        $colorClass = $fillPercent < 50 ? 'green' : ($fillPercent < 80 ? 'yellow' : 'red');
+        echo '<div class="player-bar tooltip">';
+        echo '<div class="player-bar-fill '.$colorClass.'" style="width:'.$fillPercent.'%;"></div>';
+        echo '<div class="player-bar-text">'.$online.' / '.$max.'</div>';
+        echo '<span class="tooltiptext">Players online: '.$online.'/'.$max.'</span></div>';
+
+        // Latency bar
+        if (isset($data['latency'])) {
+            $latency = $data['latency'];
+            $latencyPercent = min(100, max(0, 100 - ($latency / 5)));
+            $latencyColor = $latency < 150 ? 'green' : ($latency < 300 ? 'yellow' : 'red');
+            echo '<div class="latency-bar tooltip">';
+            echo '<div class="latency-bar-fill '.$latencyColor.'" style="width:'.$latencyPercent.'%;"></div>';
+            echo '<div class="latency-bar-text">'.$latency.' ms</div>';
+            echo '<span class="tooltiptext">Latency: '.$latency.' ms</span></div>';
+        }
+    } else {
+        echo '<p><span class="dot offline-dot"></span> Offline</p>';
+    }
+
+    echo '<button class="refresh-btn" data-host="'.$host.'" data-port="'.$port.'" data-type="'.$server['type'].'">Refresh</button>';
     echo '</div>';
-
-    // Latency bar
-    echo '<div class="latency-bar tooltip">';
-    echo '<div class="latency-bar-fill ' . $latencyColor . '" style="width:' . $latencyPercent . '%;"></div>';
-    echo '<div class="latency-bar-text">' . $latency . ' ms</div>';
-    echo '<span class="tooltiptext">Latency: ' . $latency . ' ms</span>';
-    echo '</div>';
-
-    echo '</div>'; // end card
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Minecraft Server Status</title>
-<link rel="icon" href="img/favicon.ico" type="image/x-icon">
 <style>
-body { font-family: Arial,sans-serif; margin:0; padding:0; background:url('img/background.jpg') no-repeat center center fixed; background-size:cover; color:#fff; }
-h1 { text-align:center; padding:20px; background-color:rgba(0,0,0,0.8); color:#fff; margin:0; }
-button#refresh-all { display:block; margin:10px auto; padding:10px 20px; font-size:1em; border:none; border-radius:5px; cursor:pointer; background-color:#007bff; color:#fff; }
-button#refresh-all:hover { background-color:#0056b3; }
-button#refresh-all.loading { position: relative; pointer-events: none; opacity:0.7; }
-button#refresh-all.loading::after {
-    content: '';
-    position: absolute;
-    top: 50%; left: 50%;
-    width: 16px; height: 16px;
-    margin: -8px 0 0 -8px;
-    border: 2px solid #fff;
-    border-top: 2px solid transparent;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-}
-@keyframes spin { 100% { transform: rotate(360deg); } }
-.server-container { display:flex; justify-content:space-between; padding:20px; gap:10px; flex-wrap:wrap; }
-.server-column { flex:1; min-width:300px; max-width:48%; background-color:rgba(0,0,0,0.6); padding:20px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.8); }
-.server-card { margin:15px 0; padding:15px; border-radius:8px; background-color:rgba(0,0,0,0.5); box-shadow:0 0 8px rgba(0,0,0,0.7); }
-.status { font-weight:bold; margin-bottom:10px; }
-.dot { height:12px; width:12px; border-radius:50%; display:inline-block; margin-right:10px; vertical-align:middle; }
-.dot:hover { opacity:0.7; }
-.online-dot { background-color:#00ff00; }
-.offline-dot { background-color:#ff0000; }
-.last-updated { font-size:0.85em; color:#ccc; margin-top:10px; }
-
-/* Bars */
+body { font-family: Arial, sans-serif; background:#222; color:#fff; }
+h1 { text-align:center; }
+.server-container { display:flex; flex-wrap:wrap; gap:20px; justify-content:center; }
+.server-card { background:#333; padding:15px; border-radius:8px; width:300px; }
 .player-bar, .latency-bar {
-    height:20px;
-    border-radius:10px;
-    background-color:#444;
-    margin:5px 0 10px 0;
-    position: relative;
+  height:20px; border-radius:10px; background:#444; margin:5px 0; position:relative; min-width:150px;
 }
-.player-bar-fill, .latency-bar-fill {
-    height:100%;
-    border-radius:10px;
-    width:0%;
-    transition: width 0.5s;
-}
-.player-bar-fill.green, .latency-bar-fill.green { background-color:#00ff00; }
-.player-bar-fill.yellow, .latency-bar-fill.yellow { background-color:#ffff00; color:#000; }
-.player-bar-fill.red, .latency-bar-fill.red { background-color:#ff0000; }
+.player-bar-fill.green, .latency-bar-fill.green { background:#0f0; }
+.player-bar-fill.yellow, .latency-bar-fill.yellow { background:#ff0; }
+.player-bar-fill.red, .latency-bar-fill.red { background:#f00; }
 .player-bar-text, .latency-bar-text {
-    position: absolute;
-    width:100%;
-    text-align:center;
-    line-height:20px;
-    color:#fff;
-    font-weight:bold;
-    font-size:0.85em;
-    pointer-events: none;
+  position:absolute; width:100%; text-align:center; line-height:20px; color:#fff; font-weight:bold; font-size:0.85em; white-space:nowrap;
 }
-
-/* Tooltip */
-.tooltip { position: relative; display: inline-block; cursor: default; }
-.tooltip .tooltiptext { visibility: hidden; width: max-content; max-width: 200px; background-color: rgba(0,0,0,0.8); color: #fff; text-align: center; padding: 4px 8px; border-radius: 5px; font-size: 0.75em; position: absolute; z-index: 10; bottom: 125%; left: 50%; transform: translateX(-50%); opacity: 0; transition: opacity 0.3s; white-space: nowrap; }
-.tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
-
-@media (max-width:768px){ .server-container{ flex-direction:column; } .server-column{ max-width:100%; } }
+.tooltip { position:relative; display:block; }
+.tooltip .tooltiptext {
+  visibility:hidden; background:rgba(0,0,0,0.8); color:#fff; text-align:center; padding:4px 8px; border-radius:5px;
+  position:absolute; z-index:10; bottom:125%; left:50%; transform:translateX(-50%);
+  opacity:0; transition:opacity 0.3s; white-space:nowrap;
+}
+.tooltip:hover .tooltiptext { visibility:visible; opacity:1; }
+.refresh-btn { margin-top:10px; padding:5px 10px; }
 </style>
 </head>
 <body>
 <h1>Minecraft Server Status</h1>
-<button id="refresh-all">Refresh All</button>
 <div class="server-container">
-    <div class="server-column">
-        <?php display_server_info("minecraft.sokolik.info", "https://api.mcsrvstat.us/2/minecraft.sokolik.info", "Sokolik Minecraft"); ?>
-    </div>
-    <!-- Add more server-column blocks here if you want multiple -->
+<?php
+foreach ($all_servers as $server) {
+    $data = fetch_server_data($server);
+    display_server_info($server, $data);
+}
+?>
 </div>
 <script>
-document.getElementById('refresh-all').addEventListener('click', function() {
-    this.classList.add('loading');
-    location.reload();
+document.querySelectorAll(".refresh-btn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    btn.textContent = "Refreshing...";
+    fetch("refresh.php?host="+btn.dataset.host+"&port="+btn.dataset.port+"&type="+btn.dataset.type)
+      .then(res=>res.text())
+      .then(html=>{
+        btn.parentElement.outerHTML = html;
+      });
+  });
 });
 </script>
 </body>
