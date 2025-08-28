@@ -172,6 +172,11 @@ document.getElementById('refresh-all').addEventListener('click', function() {
         .then(()=>location.reload())
         .finally(()=>btn.classList.remove('loading'));
 });
+
+    // Auto-refresh every 60 seconds (60000 ms)
+    setInterval(() => {
+        document.getElementById('refresh-all').click();
+    }, 60000);
 </script>
 </body>
 </html>
