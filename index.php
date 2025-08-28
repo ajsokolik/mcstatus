@@ -80,7 +80,7 @@ function display_server_info($type, $server, $api_url) {
 <title>Minecraft Server Status</title>
 <link rel="icon" href="img/favicon.ico" type="image/x-icon">
 <style>
-body { font-family: Arial,sans-serif; margin:0; padding:0; background:url('img/black-1072366_1920.webp') no-repeat center center fixed; background-size:cover; color:#fff; }
+body { font-family: Arial,sans-serif; margin:0; padding:0; background:url('img/background.jpg') no-repeat center center fixed; background-size:cover; color:#fff; }
 h1 { text-align:center; padding:20px; background-color:rgba(0,0,0,0.8); color:#fff; margin:0; }
 .server-container { display:flex; flex-wrap:wrap; gap:20px; justify-content:center; }
 .server-card { background-color: rgba(0,0,0,0.6); padding:15px; border-radius:8px; min-width:350px; max-width:380px; box-shadow:0 0 10px rgba(0,0,0,0.8); word-wrap: break-word; }
