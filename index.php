@@ -61,8 +61,11 @@ function display_server_info($type, $server, $api_url) {
             echo '<div class="motd">' . $motdHtml . '</div>';
         }
 
+        // Determine display IP
+        $ipAddress = filter_var($host, FILTER_VALIDATE_IP) ? $host : gethostbyname($host);
+
         // IP and hostname
-        echo "IP: " . htmlspecialchars($status->ip ?? $host) . "<br>";
+        echo "IP: " . htmlspecialchars($ipAddress) . "<br>";
         echo "Hostname: " . htmlspecialchars($displayName) . "<br>";
         echo "Port: " . htmlspecialchars($status->port ?? $port) . "<br>";
 
